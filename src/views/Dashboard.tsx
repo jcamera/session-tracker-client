@@ -27,7 +27,13 @@ function Dashboard() {
     <h3>Parking Session Tracker</h3>
     <Grid container spacing={8}>
       <Grid item xs={12} sm={6}>
-        <SessionTable data={sessionData} setSelectedRow={setSelectedRow} isLoading={isLoading}/> 
+        {
+          sessionData.length ? (
+            <SessionTable data={sessionData} setSelectedRow={setSelectedRow} isLoading={isLoading}/>
+          ) : (
+            <div className="placeholder">no sessions</div>
+          )
+        } 
       </Grid>
       <Grid item xs={12} sm={6}>
         <SessionForm selectedRow={selectedRowData}/>
