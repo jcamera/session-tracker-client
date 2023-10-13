@@ -9,7 +9,9 @@ import { useState, useEffect } from "react";
 import API from '../lib/API';
 import Snackbar from '@mui/material/Snackbar';
 import { Session, SessionStatus } from '../lib/types';
- 
+
+
+const LICENSE_PLATE_REGEX = /^[a-zA-Z0-9 ]+$/;
 
 interface SessionFormProps {
     selectedRow: Session | undefined;
@@ -28,8 +30,6 @@ export default function SessionForm({ selectedRow }: SessionFormProps) {
     });
     const [isEditMode, setIsEditMode] = useState(false);
     const [snackState, setSnackState] = useState<string>('');
-
-    console.log({selectedRow});
 
     useEffect(
         () => {
@@ -98,9 +98,17 @@ export default function SessionForm({ selectedRow }: SessionFormProps) {
                     value={formData?.plate_number}
                     onChange={onChangeFormValue('plate_number')}
                     inputProps={{ 
-                        pattern: "\[A\-Za\-z0\-9\]",
-                        style: { textAlign: 'center' },
+                        //pattern: "[A-Za-z0-9]", //isn't working, try using keydown
+                        style: { 
+                            textAlign: 'center',
+                            textTransform: 'uppercase',
+                        },
                         maxLength: 12,
+                    }}
+                    onKeyDown={e => {
+                        if (!LICENSE_PLATE_REGEX.test(e.key)) {
+                            e.preventDefault();
+                        }
                     }}
                 />
                 <br/>
@@ -111,6 +119,7 @@ export default function SessionForm({ selectedRow }: SessionFormProps) {
                         id="status"
                         name="status"
                         value={formData?.status}
+                        // @ts-ignore
                         onChange={onChangeFormValue('status')}
                     >
                         <MenuItem value={SESSION_VALUES.ACTIVE}>ACTIVE</MenuItem>
@@ -136,6 +145,7 @@ export default function SessionForm({ selectedRow }: SessionFormProps) {
                 autoHideDuration={4000}
                 onClose={handleCloseSnackbar}
                 message={snackState ?? ''}
+                anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
             />
             </div>
     )

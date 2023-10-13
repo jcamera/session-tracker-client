@@ -51,6 +51,7 @@ export default function SessionTable({data=[], setSelectedRow, isLoading}: Sessi
                         labelId="status-filter-select-label"
                         id="status-filter-select"
                         value={statusFilter}
+                        // @ts-ignore
                         onChange={handleChangeStatusFilter}
                     >
                         <MenuItem value=''>none</MenuItem>
