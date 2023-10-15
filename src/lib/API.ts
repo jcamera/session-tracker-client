@@ -1,43 +1,54 @@
-import { Session, CreateSession } from './types';
+import { Session, CreateSession, LoginUser } from './types';
 
 
-const BASE_URL = 'http://localhost:8080';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL; // 'http://localhost:8080';
+const WS_BASE_URL = import.meta.env.VITE_WS_BASE_URL;
+
+async function makeFetch(method: string, route: string, data: object | null, callback: Function | null) {
+    console.log('api call ', {method, route});
+    let options = {
+        method,
+        headers: { 
+            'Content-type': 'application/json',
+            'Authorization': window.jwt ? `Bearer ${window.jwt}` : ``
+        },
+        body: data ? JSON.stringify(data) : null
+    };
+
+    const response = await fetch(`${API_BASE_URL}${route}`, options);
+    if (!response || !response.ok) {
+        console.log(`no response for ${method} call to ${route}`);
+        return; 
+    }
+
+    const responseJson = await response.json();
+    if (callback) {
+        callback(responseJson);
+        return;
+    }
+    else {
+        return responseJson;
+    }
+}
 
 const API = {
+    getSessions: async () => {
+        return await makeFetch('GET', '/api/parking_sessions', null, null);
+    },
     createSession: async (data: CreateSession, onSuccess: () => void) => {
-        let options = {
-            method: "POST",
-            headers: { 'Content-type': 'application/json'},
-            body: JSON.stringify(data)
-        };
-
-        const response = await fetch(`${BASE_URL}/api/parking_sessions`, options);
-
-        if (response.ok) {
-            console.log('response ok: ', response);
-            onSuccess && onSuccess();
-        }
-        else {
-            console.log('post session failed: ', response);
-        }
+        return await makeFetch('POST', '/api/parking_sessions', data, onSuccess);
     },
     editSession: async (data: Session, onSuccess: () => void) => {
-        let options = {
-            method: "PUT",
-            headers: { 'Content-type': 'application/json'},
-            body: JSON.stringify(data)
-        };
-
-        //check for id, other fields
-
-        const response = await fetch(`${BASE_URL}/api/parking_sessions/${data.id}`, options); //'http://localhost:8080/api/parking_sessions', options);
-        if (response.ok) {
-            console.log('edit response ok: ', response);
-            onSuccess && onSuccess();
+        if (!data?.id) {
+            return Promise.reject("edit session missing id");
         }
-        else {
-            console.log('edit session failed: ', response);
-        }
+        return await makeFetch('PUT', `/api/parking_sessions/${data.id}`, data, onSuccess);
+    },
+    login: async (data: LoginUser) => { 
+        return await makeFetch('POST', `/login`, data, null);
+    },
+    createWSConnection: () => {
+        return new WebSocket(WS_BASE_URL);
     }
 }
 

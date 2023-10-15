@@ -22,3 +22,17 @@ export interface CreateSession {
 export interface WebsocketsMessage {
     data: string;
 }
+
+export interface LoginUser {
+    username: string;
+    email: string;
+    password: string;
+}
+
+//allow global store for special cases
+declare global {
+    interface Window {
+        jwt: string;
+    }
+}
+

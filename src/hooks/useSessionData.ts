@@ -1,24 +1,23 @@
 import { useState, useEffect } from 'react';
+import API from '../lib/API';
 
-export function useSessionData () {
+export function useSessionData (isLoggedIn: boolean) {
 
     const [sessions, setSessions] = useState([]);
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
-        const fetchData = async () => {
-            setIsLoading(true);
-            const response = await fetch('http://localhost:8080/api/parking_sessions');
-            if (!response.ok) {
-                setError('sessions fetch failed');
+        if (isLoggedIn) {
+            const fetchData = async () => {
+                setIsLoading(true);
+                const sessions = await API.getSessions();
+                setSessions(sessions);
+                setIsLoading(false);
             }
-            const data = await response.json();
-            setSessions(data);
-            setIsLoading(false);
+            fetchData();
         }
-        fetchData();
-    }, []);
+    }, [isLoggedIn]);
 
 
     return [sessions, isLoading, error] as const;

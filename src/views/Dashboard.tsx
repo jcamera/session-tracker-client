@@ -6,15 +6,20 @@ import { useWebSockets } from '../hooks/useWebSockets';
 import SessionForm from './SessionForm';
 import SessionTable from './SessionTable';
 import { Grid } from '@mui/material';
-import { Session } from '../lib/types'
+import { Session } from '../lib/types';
+import Login from './Login';
 
 function Dashboard() {
 
-  const [sessions=[], isLoading] = useSessionData();
-  const [sessionsRT=[]] = useWebSockets();
+  /**for local demo default to true */
+  //const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
+  const [isLoggedIn, setIsLoggedIn] = useState<boolean>(true);
+
+
+  const [sessions=[], isLoading] = useSessionData(isLoggedIn);
+  const [sessionsRT=[]] = useWebSockets(isLoggedIn);
   const [selectedRow, setSelectedRow] = useState(null);
 
-  //console.log({sessions, sessionsRT});
   const sessionData: Session[] = 
     sessionsRT?.length ? sessionsRT
     : sessions?.length ? sessions 
@@ -25,24 +30,28 @@ function Dashboard() {
   return (
     <>
     <h3>Parking Session Tracker</h3>
-    <Grid container spacing={8}>
-      <Grid item xs={12} sm={6}>
-        {
-          sessionData.length ? (
-            <SessionTable data={sessionData} setSelectedRow={setSelectedRow} isLoading={isLoading}/>
-          ) : (
-            <div className="placeholder">no sessions</div>
-          )
-        } 
-      </Grid>
-      <Grid item xs={12} sm={6}>
-        <SessionForm selectedRow={selectedRowData}/>
-      </Grid>
-    </Grid>
+    {
+      isLoggedIn ? (
+        <Grid container spacing={8}>
+          <Grid item xs={12} sm={6}>
+            {
+              sessionData.length ? (
+                <SessionTable data={sessionData} setSelectedRow={setSelectedRow} isLoading={isLoading}/>
+              ) : (
+                <div className="placeholder">no sessions</div>
+              )
+            } 
+          </Grid>
+          <Grid item xs={12} sm={6}>
+            <SessionForm selectedRow={selectedRowData}/>
+          </Grid>
+        </Grid>
+      ) : (
+        <Login setIsLoggedIn={setIsLoggedIn}/>
+      )
+    }
     </>
-  )
-
-  
+  )  
 }
 
 export default Dashboard;
