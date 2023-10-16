@@ -5,7 +5,6 @@ export function useSessionData (isLoggedIn: boolean) {
 
     const [sessions, setSessions] = useState([]);
     const [isLoading, setIsLoading] = useState<boolean>(false);
-    const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
         if (isLoggedIn) {
@@ -20,6 +19,6 @@ export function useSessionData (isLoggedIn: boolean) {
     }, [isLoggedIn]);
 
 
-    return [sessions, isLoading, error] as const;
+    return [sessions, isLoading] as const;
 }
 
